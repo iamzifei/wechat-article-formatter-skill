@@ -1,0 +1,513 @@
+/**
+ * Custom CSS styles for WeChat article formatting
+ * Used with bm.md rendering service
+ *
+ * This file defines the visual styling for rendered markdown content,
+ * optimized for WeChat public account articles.
+ */
+
+#bm-md {
+    margin: 0px;
+    padding: 0px 16px;
+    background: none 0% 0% / auto no-repeat scroll padding-box border-box rgba(0, 0, 0, 0);
+    width: auto;
+    font-family: Optima, "Microsoft YaHei", PingFangSC-regular, serif;
+    font-size: 16px;
+    color: rgb(0, 0, 0);
+    line-height: 1.5em;
+    word-spacing: 0em;
+    letter-spacing: 0em;
+    word-break: break-word;
+    overflow-wrap: break-word;
+    text-align: left;
+}
+
+#bm-md p {
+    color: rgb(89, 89, 89);
+    font-size: 15px;
+    line-height: 1.8em;
+    letter-spacing: 0.04em;
+    text-align: left;
+    text-indent: 0em;
+    margin: 0px;
+    padding: 8px 0px;
+}
+
+#bm-md strong {
+    color: rgb(53, 179, 120);
+    font-weight: bold;
+    background: none 0% 0% / auto no-repeat scroll padding-box border-box rgba(0, 0, 0, 0);
+    width: auto;
+    height: auto;
+    margin: 0px;
+    padding: 0px;
+    border-style: none;
+    border-width: 3px;
+    border-color: rgba(0, 0, 0, 0.4);
+    border-radius: 0px;
+}
+
+#bm-md h1 {
+    margin: 30px 0px 15px;
+    padding: 0px;
+    display: flex;
+    border-bottom: 4px;
+}
+
+#bm-md h1 span {
+    font-size: 24px;
+    color: rgba(53, 179, 120, 1);
+    line-height: 1.5em;
+    letter-spacing: 0em;
+    font-weight: bold;
+    display: block;
+}
+
+#bm-md figure {
+    margin: 10px 0px;
+    padding: 0px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+#bm-md figure img {
+    border-style: none;
+    border-width: 3px;
+    border-color: rgba(0, 0, 0, 0.4);
+    border-radius: 0px;
+    object-fit: fill;
+    box-shadow: rgba(0, 0, 0, 0) 0px 0px 0px 0px;
+}
+
+#bm-md img {
+    display: block;
+    margin: 0px auto;
+    max-width: 100%;
+}
+
+#bm-md ul {
+    list-style-type: disc;
+    margin: 8px 0px;
+    padding: 0px 0px 0px 25px;
+    color: rgb(0, 0, 0);
+}
+
+#bm-md ul li span {
+    color: rgb(89, 89, 89);
+    font-size: 15px;
+    line-height: 1.8em;
+    letter-spacing: 0.04em;
+    text-align: left;
+    font-weight: normal;
+}
+
+#bm-md ul span {
+    margin-top: 5px;
+    margin-bottom: 5px;
+}
+
+#bm-md hr {
+    margin: 10px 0px;
+    padding: 0px;
+    border-style: solid none none;
+    border-width: 1px 3px 3px;
+    border-color: rgb(53, 179, 120) rgba(0, 0, 0, 0.4) rgba(0, 0, 0, 0.4);
+    border-radius: 0px;
+    background: none 0% 0% / auto no-repeat scroll padding-box border-box rgba(0, 0, 0, 0);
+    width: auto;
+    height: 1px;
+}
+
+#bm-md h2 .prefix,
+#bm-md h2 .suffix,
+#bm-md h3 .prefix,
+#bm-md h3 .suffix {
+    display: none;
+}
+
+#bm-md h2 {
+    margin: 30px 0px 15px;
+    align-items: unset;
+    background: none 0% 0% / auto no-repeat scroll padding-box border-box transparent;
+    border-style: none;
+    border-width: 1px;
+    border-color: rgb(0, 0, 0);
+    border-radius: 0px;
+    box-shadow: none;
+    display: flex;
+    flex-direction: unset;
+    float: unset;
+    height: auto;
+    justify-content: center;
+    line-height: 1.5em;
+    overflow: unset;
+    padding: 0px;
+    position: relative;
+    text-align: left;
+    text-shadow: none;
+    transform: none;
+    width: auto;
+    -webkit-box-reflect: unset;
+}
+
+#bm-md h2 span {
+    font-size: 18px;
+    color: rgb(255, 255, 255);
+    background: none 0% 0% / auto no-repeat scroll padding-box border-box rgb(0, 0, 0);
+    line-height: 1.5em;
+    letter-spacing: 0em;
+    padding: 2px 10px;
+    align-items: unset;
+    border-style: none;
+    border-width: 1px;
+    border-color: rgb(0, 0, 0);
+    border-radius: 0px;
+    box-shadow: none;
+    content: unset;
+    display: block;
+    font-weight: bold;
+    flex-direction: unset;
+    float: unset;
+    height: auto;
+    justify-content: unset;
+    margin: 0px;
+    overflow: unset;
+    position: relative;
+    text-align: left;
+    text-indent: 0em;
+    text-shadow: none;
+    transform: none;
+    width: auto;
+    -webkit-box-reflect: unset;
+}
+
+#bm-md h3 {
+    margin: 30px 0px 15px;
+    padding: 0px;
+    display: flex;
+}
+
+#bm-md h4 {
+    margin-top: 30px;
+    margin-bottom: 15px;
+    margin-left: 0px;
+    margin-right: 0px;
+    padding-top: 0px;
+    padding-bottom: 0px;
+    padding-left: 0px;
+    padding-right: 0px;
+    display: block;
+}
+
+#bm-md h5 {
+    margin: 30px 0px 15px;
+    padding: 0px;
+    display: block;
+}
+
+#bm-md h3 span {
+    font-size: 20px;
+    color: rgb(53, 179, 120);
+    line-height: 1.5em;
+    letter-spacing: 0em;
+    font-weight: bold;
+    display: block;
+}
+
+#bm-md blockquote {
+    margin: 20px 0px;
+    padding: 10px 10px 10px 20px;
+    border-style: none none none solid;
+    border-width: 3px;
+    border-color: rgba(0, 0, 0, 0.4) rgba(0, 0, 0, 0.4) rgba(0, 0, 0, 0.4) rgb(53, 179, 120);
+    border-radius: 0px;
+    background: none 0% 0% / auto no-repeat scroll padding-box border-box rgb(251, 249, 253);
+    width: auto;
+    height: auto;
+    box-shadow: rgba(0, 0, 0, 0) 0px 0px 0px 0px;
+    display: block;
+    overflow: auto;
+}
+
+#bm-md .figure-table {
+    margin: 0px;
+    padding: 0px;
+    overflow-x: auto;
+}
+
+#bm-md .figure-table table {
+    display: table;
+    text-align: left;
+}
+
+#bm-md .figure-table table thead tr th:nth-of-type(n) {
+    min-width: 85px;
+}
+
+#bm-md .figure-table table thead tr th {
+    color: rgb(89, 89, 89);
+    font-size: 15px;
+    line-height: 1.5em;
+    letter-spacing: 0.04em;
+    text-align: left;
+    font-weight: bold;
+    background: none 0% 0% / auto no-repeat scroll padding-box border-box rgb(240, 240, 240);
+    width: auto;
+    height: auto;
+    border-style: solid;
+    border-width: 1px;
+    border-color: rgba(204, 204, 204, 0.4);
+    border-radius: 0px;
+    padding: 5px 10px;
+}
+
+#bm-md .figure-table table tbody {
+    font-size: 15px;
+    line-height: 1.5em;
+    letter-spacing: 0.04em;
+    text-align: left;
+    font-weight: normal;
+    border: 0px;
+}
+
+#bm-md .table-container table tbody tr:nth-of-type(2n+1) {
+    color: rgb(89, 89, 89);
+    background: none 0% 0% / auto no-repeat scroll padding-box border-box rgb(255, 255, 255);
+    width: auto;
+    height: auto;
+}
+
+#bm-md .table-container table tbody tr:nth-of-type(2n+1) td {
+    border-style: solid;
+    border-width: 1px;
+    border-color: rgba(204, 204, 204, 0.4);
+    border-radius: 0px;
+}
+
+#bm-md .table-container table tbody tr:nth-of-type(2n) {
+    color: rgb(89, 89, 89);
+    background: none 0% 0% / auto no-repeat scroll padding-box border-box rgb(248, 248, 248);
+    width: auto;
+    height: auto;
+}
+
+#bm-md .table-container table tbody tr:nth-of-type(2n) td {
+    border-style: solid;
+    border-width: 1px;
+    border-color: rgba(204, 204, 204, 0.4);
+    border-radius: 0px;
+}
+
+#bm-md .table-container table tbody tr td:nth-of-type(n) {
+    min-width: 85px;
+}
+
+#bm-md .table-container table tbody tr td {
+    padding: 5px 10px;
+}
+
+#bm-md pre {
+    margin-top: 10px;
+    margin-bottom: 10px;
+    margin-left: 0px;
+    margin-right: 0px;
+    padding-top: 0px;
+    padding-bottom: 0px;
+    padding-left: 0px;
+    padding-right: 0px;
+}
+
+#bm-md pre code {
+    display: -webkit-box;
+    font-family: Consolas, Monaco, Menlo, monospace;
+    font-size: 12px;
+    -webkit-overflow-scrolling: touch;
+    padding-top: 15px;
+    background: #282c34;
+    border-radius: 5px;
+}
+
+#bm-md p code {
+    color: rgba(30, 107, 184, 1);
+    font-size: 14px;
+    line-height: 1.8em;
+    letter-spacing: 0em;
+    background-attachment: scroll;
+    background-clip: border-box;
+    background-color: rgba(27, 31, 35, 0.05);
+    background-image: none;
+    background-origin: padding-box;
+    background-position-x: left;
+    background-position-y: top;
+    background-repeat: no-repeat;
+    background-size: auto;
+    width: auto;
+    height: auto;
+    margin-top: 0px;
+    margin-bottom: 0px;
+    margin-left: 2px;
+    margin-right: 2px;
+    padding-top: 2px;
+    padding-bottom: 2px;
+    padding-left: 4px;
+    padding-right: 4px;
+    border-top-style: none;
+    border-bottom-style: none;
+    border-left-style: none;
+    border-right-style: none;
+    border-top-width: 3px;
+    border-bottom-width: 3px;
+    border-left-width: 3px;
+    border-right-width: 3px;
+    border-top-color: rgba(0, 0, 0, 1);
+    border-bottom-color: rgba(0, 0, 0, 0.4);
+    border-left-color: rgba(0, 0, 0, 0.4);
+    border-right-color: rgba(0, 0, 0, 0.4);
+    border-top-left-radius: 4px;
+    border-top-right-radius: 4px;
+    border-bottom-right-radius: 4px;
+    border-bottom-left-radius: 4px;
+    word-wrap: break-word;
+    font-family: Consolas, Monaco, Menlo, monospace;
+    word-break: break-all;
+}
+
+#bm-md em {
+    color: rgba(53, 179, 120, 1);
+    font-style: italic;
+    background-attachment: scroll;
+    background-clip: border-box;
+    background-color: rgba(0, 0, 0, 0);
+    background-image: none;
+    background-origin: padding-box;
+    background-position-x: left;
+    background-position-y: top;
+    background-repeat: no-repeat;
+    background-size: auto;
+    width: auto;
+    height: auto;
+    margin-top: 0px;
+    margin-bottom: 0px;
+    margin-left: 0px;
+    margin-right: 0px;
+    padding-top: 0px;
+    padding-bottom: 0px;
+    padding-left: 0px;
+    padding-right: 0px;
+    border-top-style: none;
+    border-bottom-style: none;
+    border-left-style: none;
+    border-right-style: none;
+    border-top-width: 3px;
+    border-bottom-width: 3px;
+    border-left-width: 3px;
+    border-right-width: 3px;
+    border-top-color: rgba(0, 0, 0, 0.4);
+    border-bottom-color: rgba(0, 0, 0, 0.4);
+    border-left-color: rgba(0, 0, 0, 0.4);
+    border-right-color: rgba(0, 0, 0, 0.4);
+    border-top-left-radius: 0px;
+    border-top-right-radius: 0px;
+    border-bottom-right-radius: 0px;
+    border-bottom-left-radius: 0px;
+}
+
+#bm-md s {
+    color: rgba(0, 0, 0, 1);
+    font-style: italic;
+}
+
+#bm-md ol {
+    list-style-type: decimal;
+    margin-top: 8px;
+    margin-bottom: 8px;
+    margin-left: 0px;
+    margin-right: 0px;
+    padding-top: 0px;
+    padding-bottom: 0px;
+    padding-left: 25px;
+    padding-right: 0px;
+    color: rgba(0, 0, 0, 1);
+}
+
+#bm-md a {
+    color: rgba(53, 179, 120, 1);
+    font-weight: bold;
+    border-top-style: none;
+    border-bottom-style: solid;
+    border-left-style: none;
+    border-right-style: none;
+    border-top-width: 1px;
+    border-bottom-width: 1px;
+    border-left-width: 1px;
+    border-right-width: 1px;
+    border-top-color: rgba(30, 107, 184, 1);
+    border-bottom-color: rgba(53, 179, 120, 1);
+    border-left-color: rgba(30, 107, 184, 1);
+    border-right-color: rgba(30, 107, 184, 1);
+    border-top-left-radius: 0px;
+    border-top-right-radius: 0px;
+    border-bottom-right-radius: 0px;
+    border-bottom-left-radius: 0px;
+    margin-top: 0px;
+    margin-bottom: 0px;
+    margin-left: 0px;
+    margin-right: 0px;
+    padding-top: 0px;
+    padding-bottom: 0px;
+    padding-left: 0px;
+    padding-right: 0px;
+    text-decoration: none;
+    word-wrap: break-word;
+}
+
+#bm-md .footnote-ref {
+    color: rgba(53, 179, 120, 1);
+    font-weight: bold;
+}
+
+#bm-md .markdown-alert-note {
+    margin-top: 20px;
+    margin-bottom: 20px;
+    margin-left: 0px;
+    margin-right: 0px;
+    padding-top: 10px;
+    padding-bottom: 10px;
+    padding-left: 20px;
+    padding-right: 20px;
+    border-top-style: none;
+    border-bottom-style: none;
+    border-left-style: none;
+    border-right-style: none;
+    border-top-width: 3px;
+    border-bottom-width: 3px;
+    border-left-width: 3px;
+    border-right-width: 3px;
+    border-top-color: rgba(0, 0, 0, 0.4);
+    border-bottom-color: rgba(0, 0, 0, 0.4);
+    border-left-color: rgba(0, 0, 0, 0.4);
+    border-right-color: rgba(0, 0, 0, 0.4);
+    border-top-left-radius: 0px;
+    border-top-right-radius: 0px;
+    border-bottom-right-radius: 0px;
+    border-bottom-left-radius: 0px;
+    background-attachment: scroll;
+    background-clip: border-box;
+    background-color: rgba(250, 250, 250, 1);
+    background-image: none;
+    background-origin: padding-box;
+    background-position-x: left;
+    background-position-y: top;
+    background-repeat: no-repeat;
+    background-size: auto;
+    width: auto;
+    height: auto;
+    box-shadow: 0px 0px 0px 0px rgba(0, 0, 0, 0);
+    display: block;
+}
+
+#bm-md .markdown-alert-title {
+    display: none;
+}
