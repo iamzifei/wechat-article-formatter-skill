@@ -1,6 +1,6 @@
 ---
 name: wechat-article-formatter
-description: Format WeChat article markdown files into beautifully styled HTML using bm.md service. Supports custom styling optimized for WeChat public account articles. Automatically uploads local images and replaces paths with online URLs.
+description: Convert markdown to styled HTML for WeChat articles with auto image upload
 ---
 
 # WeChat Article Formatter Skill
