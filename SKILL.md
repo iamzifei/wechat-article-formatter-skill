@@ -1,248 +1,225 @@
 ---
 name: wechat-article-formatter
-description: Convert markdown to styled HTML for WeChat articles with auto image upload
+description: Format markdown and publish to WeChat Official Account via bm.md rendering + WeChat official API
 ---
 
-# WeChat Article Formatter Skill
+# WeChat Article Formatter & Publisher
 
-This skill formats markdown files into styled HTML optimized for WeChat public account articles using the bm.md rendering service.
+Format markdown articles with bm.md styling and publish directly to WeChat Official Account drafts via the official API.
 
 ## Overview
 
-The skill performs the following workflow:
-1. Reads the provided markdown file or content
-2. Loads custom CSS styling from the `styles/custom.css` file in this skill's directory
-3. **Scans for local images, uploads them, and replaces paths with online URLs**
-4. Calls the bm.md API to render the markdown with WeChat-optimized styling
-5. Outputs the formatted HTML that can be directly pasted into WeChat's article editor
+1. Read markdown file (typically `wechat.md` from article directory)
+2. Upload local images to WeChat CDN via `media/uploadimg` API
+3. Replace local image paths with WeChat CDN URLs in markdown
+4. Render markdown to styled HTML via bm.md API with custom CSS
+5. Publish to WeChat draft via official `draft/add` API
 
-## Usage
+**CRITICAL**: Do NOT use third-party publishing APIs (e.g. 微绿 `wechat-publish`). They strip inline CSS styles. Always use WeChat's official `draft/add` API directly.
 
-When the user invokes this skill, you should:
+## Credentials
 
-### Step 1: Identify the Input
+Read from `~/.env`:
 
-The user will provide one of the following:
-- A file path to a markdown file (e.g., `/path/to/article.md`)
-- Raw markdown content directly in the conversation
+| Variable | Purpose |
+|----------|---------|
+| `WECHAT_APP_ID` | WeChat Official Account AppID |
+| `WECHAT_APP_SECRET` | WeChat Official Account AppSecret |
 
-If the input is unclear, ask the user to provide either a markdown file path or paste the markdown content directly.
+If not found, prompt the user to provide them and save to `~/.env`.
 
-### Step 2: Read the Custom CSS
+## Workflow
 
-Read the custom CSS file from this skill's directory:
+### Step 1: Identify Input
 
-```
-{{SKILL_DIR}}/styles/custom.css
-```
+The user provides a markdown file path (e.g. `wechat.md` in an article directory).
 
-Use the Read tool to get the CSS content. This CSS provides the custom styling for the WeChat article.
+Detect the article directory to find:
+- `promotion.md` → extract digest/summary
+- `_attachments/` → local images
+- Brand config from the conversation context → author name
 
-### Step 3: Upload Local Images
+### Step 2: Get WeChat Access Token
 
-Before rendering, scan the markdown content for local image references and upload them to get online URLs.
-
-#### 3.1 Find All Image References
-
-Parse the markdown to find all image references using the pattern `![alt](path)`. Look for:
-
-- Standard markdown images: `![alt text](path/to/image.png)`
-- Images with titles: `![alt text](path/to/image.png "title")`
-
-#### 3.2 Identify Local Image Paths
-
-For each image found, determine if it's a local file that needs uploading:
-
-**Local paths (need upload):**
-- Absolute paths starting with `/`: `/Users/james/images/photo.png`
-- Relative paths: `./images/photo.png`, `../assets/image.jpg`, `images/pic.png`
-
-**Already online (skip):**
-- URLs starting with `http://` or `https://`
-- Data URIs starting with `data:`
-
-#### 3.3 Resolve Absolute Paths
-
-For each local image, calculate its absolute path:
-
-**If the user provided a markdown file path:**
-- Use the markdown file's directory as the base directory
-- For relative paths like `./images/photo.png` in `/Users/james/articles/post.md`:
-  - Base directory: `/Users/james/articles/`
-  - Absolute path: `/Users/james/articles/images/photo.png`
-
-**If the user provided raw markdown content:**
-- Ask the user for the base directory to resolve relative paths, OR
-- Skip images with relative paths and inform the user they need to provide absolute paths
-
-#### 3.4 Upload Images Using /image-upload Skill
-
-For each local image with a valid absolute path:
-
-1. Invoke the `/image-upload` skill with the absolute image path
-2. The skill will upload the image and return an online URL
-3. Keep a mapping of `original_path -> online_url`
-
-Example invocation:
-```
-/image-upload /Users/james/articles/images/photo.png
+```python
+params = urlencode({
+    'grant_type': 'client_credential',
+    'appid': WECHAT_APP_ID,
+    'secret': WECHAT_APP_SECRET
+})
+# GET https://api.weixin.qq.com/cgi-bin/token?{params}
 ```
 
-The `/image-upload` skill will return a URL like `https://files.catbox.moe/abc123.png`.
+If error `40164` (IP not in whitelist), instruct user to add the IP at: mp.weixin.qq.com → 设置与开发 → 基本配置 → IP白名单.
 
-#### 3.5 Replace Paths in Markdown
+### Step 3: Upload Images to WeChat CDN
 
-After all images are uploaded, replace the local paths in the markdown content with their corresponding online URLs:
+**CRITICAL**: Upload ALL images in the SAME session. WeChat CDN URLs from previous sessions may expire.
 
-**Before:**
-```markdown
-![My Photo](./images/photo.png)
-![Screenshot](/Users/james/screenshots/demo.png)
+Use `media/uploadimg` API for inline content images:
+
+```python
+# POST https://api.weixin.qq.com/cgi-bin/media/uploadimg?access_token={token}
+# Content-Type: multipart/form-data
+# Body: media=@image_file
+# Response: {"url": "http://mmbiz.qpic.cn/..."}
 ```
 
-**After:**
-```markdown
-![My Photo](https://files.catbox.moe/abc123.png)
-![Screenshot](https://files.catbox.moe/def456.png)
+Use `material/add_material` API for cover/thumb image:
+
+```python
+# POST https://api.weixin.qq.com/cgi-bin/material/add_material?access_token={token}&type=image
+# Content-Type: multipart/form-data
+# Body: media=@cover_image
+# Response: {"media_id": "...", "url": "..."}
 ```
 
-**Important Notes:**
-- Preserve the alt text and title exactly as they were
-- Only replace the path portion of the image reference
-- If an image upload fails, report the error and keep the original path (the user can fix it manually)
-- Process images sequentially to avoid rate limiting
+For remote images (e.g. `https://i.ibb.co/...`), download first, then upload to WeChat CDN.
 
-#### 3.6 Report Upload Summary
+After uploading, replace all local/remote image paths in the markdown with WeChat CDN URLs before rendering.
 
-After processing all images, provide a summary:
+### Step 4: Render with bm.md
 
-```
-Image Upload Summary:
-✓ Uploaded: ./images/photo.png → https://files.catbox.moe/abc123.png
-✓ Uploaded: /Users/james/screenshots/demo.png → https://files.catbox.moe/def456.png
-✗ Failed: ./images/missing.png (File not found)
-⊘ Skipped: https://example.com/existing.png (Already online)
+Read custom CSS from `{{SKILL_DIR}}/styles/custom.css`.
 
-Total: 2 uploaded, 1 failed, 1 skipped
-```
+**IMPORTANT**: Write the JSON payload to a temp file and use `curl -d @file` to avoid shell escaping issues.
 
-### Step 4: Call the bm.md API
+```python
+payload = json.dumps({
+    "markdown": md_content,
+    "markdownStyle": "green-simple",
+    "codeTheme": "kimbie-light",
+    "customCss": css_content,
+    "enableFootnoteLinks": True,
+    "openLinksInNewWindow": True,
+    "platform": "wechat"
+}, ensure_ascii=False)
 
-Make a POST request to the bm.md rendering API with the following configuration:
-
-**Endpoint:** `POST https://bm.md/api/markdown/render`
-
-**Request Body:**
-```json
-{
-  "markdown": "<the markdown content>",
-  "markdownStyle": "green-simple",
-  "platform": "wechat",
-  "enableFootnoteLinks": true,
-  "openLinksInNewWindow": true,
-  "customCss": "<content from {{SKILL_DIR}}/styles/custom.css as string>"
-}
+# Write to /tmp/bm-payload.json, then:
+# curl -s -X POST https://bm.md/api/markdown/render \
+#   -H "Content-Type: application/json" \
+#   -d @/tmp/bm-payload.json
 ```
 
-**Parameter Details:**
-| Parameter | Type | Value | Description |
-|-----------|------|-------|-------------|
-| `markdown` | string | (content) | The markdown content to render |
-| `markdownStyle` | string | `"green-simple"` | Base styling theme for the rendered output |
-| `platform` | string | `"wechat"` | Target platform optimization |
+The `ensure_ascii=False` is critical — without it, Chinese characters become `\uXXXX` escape sequences.
+
+### Step 5: Publish to WeChat Draft
+
+```python
+draft_payload = json.dumps({
+    "articles": [{
+        "title": title,
+        "author": author,                    # e.g. "在悉尼和稀泥"
+        "thumb_media_id": thumb_media_id,     # from Step 3 material upload
+        "content": html,                      # from Step 4 bm.md render
+        "digest": digest,                     # from promotion.md, max ~60 Chinese chars
+        "need_open_comment": 1,               # enable comments
+        "only_fans_can_comment": 0,           # allow all users to comment
+        "original_article_type": 1,           # declare as original content
+        "reward_wording": "喜欢这篇文章，请我喝杯咖啡",  # enable tipping
+        "creation_source_type": 1             # 个人观点，仅供参考
+    }]
+}, ensure_ascii=False).encode('utf-8')
+
+# POST https://api.weixin.qq.com/cgi-bin/draft/add?access_token={token}
+```
+
+**Default publish settings**:
+
+| Field | Value | Description |
+|-------|-------|-------------|
+| `need_open_comment` | `1` | Enable comments |
+| `only_fans_can_comment` | `0` | All users can comment |
+| `original_article_type` | `1` | Declare as original |
+| `reward_wording` | `"喜欢这篇文章，请我喝杯咖啡"` | Enable tipping |
+| `creation_source_type` | `1` | 个人观点，仅供参考 |
+
+**Digest extraction from promotion.md**:
+
+Look for `## 文章摘要` section, extract text, truncate to ~60 Chinese characters (WeChat limit is 120 bytes).
+
+**Author resolution** (first match wins):
+1. User explicitly specified
+2. Brand config `author` field
+3. Brand config `品牌名称` field
+
+### Step 6: Report Result
+
+```
+WeChat Publishing Complete!
+
+Title: {title}
+Author: {author}
+Digest: {digest}
+Original: ✓ declared
+Tipping: ✓ enabled
+Comments: ✓ open to all
+Images: {N} uploaded to WeChat CDN
+media_id: {media_id}
+
+→ Preview at: https://mp.weixin.qq.com (内容管理 → 草稿箱)
+```
+
+## Markdown Content Order for WeChat
+
+When building the WeChat markdown, elements should appear in this order:
+
+```
+1. 关注引导文字 (e.g. 👆 「关注」加「星标」...)
+2. 封面图 (cover image)
+3. --- 分隔线
+4. 正文内容 (article body with inline images)
+5. --- 分隔线
+6. 作者介绍 (about author section)
+7. --- 分隔线
+8. 推广区块 (promo blockquote with image)
+9. --- 分隔线
+10. 互动引导 (engagement CTA)
+```
+
+The H1 title should be REMOVED from markdown — WeChat displays its own title from the `title` field.
+
+## Common Pitfalls
+
+| Pitfall | Solution |
+|---------|----------|
+| Chinese shows as `\uXXXX` | Use `ensure_ascii=False` in ALL `json.dumps()` calls |
+| Images not displaying | Upload in same session; don't reuse old CDN URLs |
+| Styles stripped (plain text) | Use WeChat official `draft/add` API, NOT third-party APIs |
+| `40164` IP whitelist error | Add current IP at mp.weixin.qq.com → 基本配置 → IP白名单 |
+| `45004` digest too long | Keep digest under 60 Chinese characters |
+| `40007` invalid media_id | Upload cover via `material/add_material` first to get `thumb_media_id` |
+| `> [!NOTE]` renders wrong | Convert GitHub alerts to regular `>` blockquotes for WeChat |
+
+## bm.md API Reference
+
+**Render**: `POST https://bm.md/api/markdown/render`
+
+| Parameter | Type | Default | Description |
+|-----------|------|---------|-------------|
+| `markdown` | string | required | Markdown content |
+| `markdownStyle` | string | `ayu-light` | Style ID (use `green-simple`) |
+| `codeTheme` | string | `kimbie-light` | Code highlight theme |
+| `customCss` | string | `""` | Custom CSS scoped to `#bm-md` |
 | `enableFootnoteLinks` | boolean | `true` | Convert links to footnotes |
 | `openLinksInNewWindow` | boolean | `true` | Links open in new window |
-| `customCss` | string | (CSS content) | Custom CSS from `styles/custom.css` file |
+| `platform` | string | `html` | Target: `html`, `wechat`, `zhihu`, `juejin` |
 
-Use the Bash tool with curl to make the API request:
-
-```bash
-curl -X POST https://bm.md/api/markdown/render \
-  -H "Content-Type: application/json" \
-  -d '{
-    "markdown": "<escaped markdown content>",
-    "markdownStyle": "green-simple",
-    "platform": "wechat",
-    "enableFootnoteLinks": true,
-    "openLinksInNewWindow": true,
-    "customCss": "<escaped CSS content from styles/custom.css>"
-  }'
-```
-
-**Important Notes:**
-- `markdownStyle` must be exactly `"green-simple"` (lowercase with hyphen)
-- `customCss` should contain the entire CSS file content as a JSON-escaped string
-- Properly escape the markdown and CSS content for JSON (escape quotes, newlines, backslashes, etc.)
-- The response will be JSON with the rendered HTML in the `result` field
-
-### Step 5: Output the Result
-
-After receiving the API response:
-
-1. Extract the HTML from the `result` field in the JSON response
-2. Save the HTML to a file (default: same name as input with `.html` extension, or `output.html` if content was provided directly)
-3. Display a success message with the output file path
-
-### Step 6: Offer to Publish (Optional)
-
-After formatting is complete, ask the user if they want to publish the article to WeChat:
-
-> "The article has been formatted and saved to `<output_path>`. Would you like me to publish it as a draft to your WeChat public account using the `/wechat-article-publisher` skill?"
-
-If the user confirms, invoke the `/wechat-article-publisher` skill with the formatted HTML content.
-
-## Example Workflow
-
-**User:** Format my article at `/Users/james/articles/my-post.md`
-
-**Assistant Actions:**
-1. Read the markdown file at `/Users/james/articles/my-post.md`
-2. Read the custom CSS from this skill's `styles/custom.css`
-3. Scan markdown for local images:
-   - Find `![Demo](./images/demo.png)` and `![Screenshot](../screenshots/app.png)`
-   - Resolve paths: `/Users/james/articles/images/demo.png`, `/Users/james/screenshots/app.png`
-   - Upload each image using `/image-upload` skill
-   - Replace paths with returned URLs
-4. Call the bm.md API with the updated markdown and CSS
-5. Save the result to `/Users/james/articles/my-post.html`
-6. Report success (including image upload summary) and ask about publishing
-
-## API Response Format
-
-The bm.md API returns:
-```json
-{
-  "result": "<div id=\"bm-md\">...</div>"
-}
-```
-
-The `result` field contains the fully styled HTML with inline CSS, ready to be copied into WeChat's rich text editor.
+Available styles: `ayu-light`, `bauhaus`, `blueprint`, `botanical`, `green-simple`, `maximalism`, `neo-brutalism`, `newsprint`, `organic`, `playful-geometric`, `professional`, `retro`, `sketch`, `terminal`
 
 ## Styling Features
 
-The custom CSS provides:
-- Clean typography with Optima/Microsoft YaHei fonts
-- Green accent color theme (rgb(53, 179, 120))
-- Properly styled headings, paragraphs, and lists
-- Code blocks with syntax highlighting
-- Blockquotes with left border accent
-- Responsive tables
-- Optimized spacing for mobile reading
-
-## Error Handling
-
-If the API call fails:
-1. Display the error message to the user
-2. Suggest checking the markdown content for any issues
-3. Offer to retry the request
-
-If the markdown file cannot be read:
-1. Verify the file path exists
-2. Check file permissions
-3. Report the specific error to the user
+The custom CSS (`styles/custom.css`) provides:
+- Optima/Microsoft YaHei fonts
+- Green accent color (rgb(53, 179, 120))
+- H2 headings: white text on black background
+- Bold text: green color
+- Blockquotes: green left border
+- Responsive tables with alternating row colors
+- Code blocks with dark background
 
 ## Dependencies
 
-This skill integrates with:
-- `/image-upload` - For uploading local images to hosting providers and getting shareable URLs (required for local image support)
-- `/wechat-article-publisher` - For publishing formatted articles as drafts to WeChat public accounts (optional)
+- WeChat Official Account API credentials (`~/.env`)
+- bm.md rendering service (no auth required)
+- Custom CSS at `{{SKILL_DIR}}/styles/custom.css`
