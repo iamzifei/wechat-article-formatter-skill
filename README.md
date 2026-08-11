@@ -1,5 +1,7 @@
 # WeChat Article Formatter Skill
 
+[![ko-fi](https://ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/H2T024VDBG)
+
 A Claude Code skill that formats markdown files into beautifully styled HTML optimized for WeChat public account articles.
 
 ## Features
